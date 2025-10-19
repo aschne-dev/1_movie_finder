@@ -47,6 +47,13 @@
   .wrapper > header img {
     @apply w-full max-w-lg h-auto object-contain mx-auto drop-shadow-md;
   }
+
+  a {
+    @apply text-white underline px-2;
+  }
+  a:hover {
+    @apply no-underline;
+  }
 }
 
 @layer components {
@@ -151,7 +158,7 @@
   }
 
   .login-page {
-    @apply grid grid-cols-1 bg-dark-100 p-5 rounded-2xl shadow-inner shadow-light-100/10 mt-10 text-gray-100 w-[500px];
+    @apply grid grid-cols-1 bg-dark-100 p-5 rounded-2xl shadow-inner shadow-light-100/10 mt-10  w-[500px] text-gray-100;
 
     & label {
       @apply mt-3;
