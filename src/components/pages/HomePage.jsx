@@ -1,19 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDebounce } from "react-use";
 import { getTrendingMovies, updateSearchCount } from "../../utils/appwrite";
+import { fetchMovies } from "../../utils/tmdb";
 import MovieCard from "../MovieCard";
 import Search from "../Search";
 import Spinner from "../Spinner";
-
-const API_BASE_URL = "https://api.themoviedb.org/3";
-const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
-const API_OPTIONS = {
-  method: "GET",
-  headers: {
-    accept: "application/json",
-    Authorization: `Bearer ${API_KEY}`,
-  },
-};
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,30 +18,12 @@ export default function HomePage() {
   useDebounce(() => setDebouncedSearchItem(searchTerm), 500, [searchTerm]);
 
   // Fetch the main movie list, optionally by search term
-  const fetchMovies = useCallback(async (query = "") => {
+  const loadMovies = useCallback(async (query = "") => {
     setIsLoading(true);
     setErrorMessage("");
 
     try {
-      const endpoint = query
-        ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}`
-        : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc`;
-
-      const response = await fetch(endpoint, API_OPTIONS);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch movies");
-      }
-
-      const data = await response.json();
-
-      if (data.Response === "False") {
-        setErrorMessage(data.Error || "Failed to fetch movies");
-        setMovieList([]);
-        return;
-      }
-
-      const results = Array.isArray(data.results) ? data.results : [];
+      const results = await fetchMovies(query);
       setMovieList(results);
 
       if (query && results.length > 0) {
@@ -58,7 +31,12 @@ export default function HomePage() {
       }
     } catch (error) {
       console.log(`Error fetching movies: ${error}`);
-      setErrorMessage("Error fetching movies. Please try again later.");
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Error fetching movies. Please try again later.";
+      setErrorMessage(message);
+      setMovieList([]);
     } finally {
       setIsLoading(false);
     }
@@ -75,8 +53,8 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    fetchMovies(debouncedSearchItem);
-  }, [debouncedSearchItem, fetchMovies]);
+    loadMovies(debouncedSearchItem);
+  }, [debouncedSearchItem, loadMovies]);
 
   useEffect(() => {
     // Populate trending carousel as soon as the page mounts

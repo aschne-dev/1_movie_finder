@@ -1,9 +1,27 @@
+import { useNavigate } from "react-router";
+
 // Display a single movie entry with sensible fallbacks for incomplete data.
 export default function MovieCard({
-  movie: { title, vote_average, poster_path, release_date, original_language },
+  movie: {
+    id,
+    title,
+    vote_average,
+    poster_path,
+    release_date,
+    original_language,
+  },
 }) {
+  // STATE
+  const navigate = useNavigate();
+
+  // COMPORTEMENTS
+  const handleCardClick = () => {
+    navigate(`/movie/${id}`);
+  };
+
+  // RENDER
   return (
-    <div className="movie-card">
+    <div className="movie-card" onClick={handleCardClick}>
       {/* Use TMDB poster when available; fallback image prevents broken UI */}
       <img
         src={
