@@ -80,6 +80,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.log(error);
       setLoading(false);
+      throw error;
     }
   };
 
@@ -97,12 +98,14 @@ export const AuthProvider = ({ children }) => {
     loginUser,
     logoutUser,
     checkUserStatus,
+    loading,
   };
 
   // RENDER
   return (
     <AuthContext.Provider value={contextData}>
-      {loading ? <p className="text-gray-100">Loading...</p> : children}{" "}
+      {loading && <p className="text-gray-100">Loading...</p>}
+      {children}
     </AuthContext.Provider>
   );
 };
