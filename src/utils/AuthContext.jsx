@@ -16,6 +16,12 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
 
+  // COMPORTEMENTS
+  useEffect(() => {
+    // Ensure we restore any existing session on mount
+    checkUserStatus();
+  }, [checkUserStatus]);
+
   const checkUserStatus = useCallback(async () => {
     try {
       // Check if a valid session cookie already exists
@@ -38,12 +44,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  useEffect(() => {
-    // Ensure we restore any existing session on mount
-    checkUserStatus();
-  }, [checkUserStatus]);
-
-  // COMPORTEMENTS
   const registerUser = async (userInfo) => {
     setLoading(true);
     try {

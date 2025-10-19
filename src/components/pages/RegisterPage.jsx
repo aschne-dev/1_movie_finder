@@ -15,7 +15,7 @@ export default function RegisterPage() {
 
   // COMPORTEMENTS
   useEffect(() => {
-    // Redirect away if a session already exists
+    // Redirect authenticated users straight to the homepage
     if (user) {
       navigate("/");
     }
@@ -24,22 +24,26 @@ export default function RegisterPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Basic email format guard before hitting Appwrite
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email)) {
       setError("Please enter a valid email address.");
       return;
     }
 
+    // Appwrite enforces a minimum length of 8 characters
     if (password.length < 8) {
       setError("Password must be at least 8 characters.");
       return;
     }
 
+    // Double-check both password inputs match before proceeding
     if (password !== password2) {
       setError("Passwords do not match !");
       return;
     }
 
+    // All checks pass, clear errors and send the payload
     setError(null);
     const userInfo = { name, email, password, password2 };
     registerUser(userInfo);
