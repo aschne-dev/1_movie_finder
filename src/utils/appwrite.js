@@ -1,19 +1,19 @@
-import { Client, ID, Query, TablesDB } from "appwrite";
+import { Account, Client, ID, Query, TablesDB } from "appwrite";
 
 const PROJECT_ID = import.meta.env.VITE_APPWRITE_PROJECT_ID;
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABSE_ID;
 const TABLE_ID = import.meta.env.VITE_APPWRITE_TABLE_NAME;
 
+// Shared Appwrite client powering account and tables interactions
 const client = new Client()
   .setEndpoint("https://cloud.appwrite.io/v1")
   .setProject(PROJECT_ID);
 
 const tables = new TablesDB(client);
+export const account = new Account(client);
 
 export const updateSearchCount = async (searchTerm, movie) => {
-  console.log(PROJECT_ID, DATABASE_ID, TABLE_ID);
-
-  // 1. Use Tables API to check if the search term already has a row.
+  // Track how often each search term is used by updating TablesDB rows
   try {
     const result = await tables.listRows({
       databaseId: DATABASE_ID,
@@ -56,6 +56,7 @@ export const updateSearchCount = async (searchTerm, movie) => {
 
 export const getTrendingMovies = async () => {
   try {
+    // Fetch top searches ordered by popularity to drive the carousel
     const result = await tables.listRows({
       databaseId: DATABASE_ID,
       tableId: TABLE_ID,

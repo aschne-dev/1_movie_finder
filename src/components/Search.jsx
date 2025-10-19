@@ -7,6 +7,7 @@ export default function Search({ searchTerm, setSearchTerm }) {
 
         <input
           type="text"
+          id="search"
           placeholder="Search through thousands of movies"
           value={searchTerm}
           // Mirror every keystroke so the debounced search stays in sync.
