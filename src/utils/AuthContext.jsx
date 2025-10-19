@@ -1,3 +1,4 @@
+import { ID } from "appwrite";
 import {
   createContext,
   useCallback,
@@ -43,7 +44,27 @@ export const AuthProvider = ({ children }) => {
   }, [checkUserStatus]);
 
   // COMPORTEMENTS
-  const registerUser = (userInfo) => {};
+  const registerUser = async (userInfo) => {
+    setLoading(true);
+    try {
+      await account.create({
+        userId: ID.unique(),
+        email: userInfo.email,
+        password: userInfo.password,
+        name: userInfo.name,
+      });
+
+      await account.createEmailPasswordSession({
+        email: userInfo.email,
+        password: userInfo.password,
+      });
+
+      await checkUserStatus();
+    } catch (error) {
+      console.log(error);
+    }
+    setLoading(false);
+  };
 
   const loginUser = async (userInfo) => {
     setLoading(true);
