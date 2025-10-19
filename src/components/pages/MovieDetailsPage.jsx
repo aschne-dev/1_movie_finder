@@ -3,7 +3,7 @@ import { useParams } from "react-router";
 import { getMovieDetail } from "../../utils/tmdb";
 import Spinner from "../Spinner";
 
-export default function MovieDetails() {
+export default function MovieDetailsPage() {
   // STATE
   const { id } = useParams();
 
