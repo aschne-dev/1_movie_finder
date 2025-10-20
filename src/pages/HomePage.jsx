@@ -1,10 +1,11 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { useDebounce } from "react-use";
-import { getTrendingMovies, updateSearchCount } from "../../utils/appwrite";
-import { fetchMovies } from "../../utils/tmdb";
-import MovieCard from "../MovieCard";
-import Search from "../Search";
-import Spinner from "../Spinner";
+import MovieCard from "../components/MovieCard";
+import Search from "../components/Search";
+import Spinner from "../components/Spinner";
+import { getTrendingMovies, updateSearchCount } from "../utils/appwrite";
+import { fetchMovies } from "../utils/tmdb";
 
 export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -13,12 +14,13 @@ export default function HomePage() {
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Delay API calls until the user pauses typing
   useDebounce(() => setDebouncedSearchItem(searchTerm), 500, [searchTerm]);
 
   // Fetch the main movie list, optionally by search term
-  const loadMovies = useCallback(async (query = "") => {
+  const loadMovies = async (query = "") => {
     setIsLoading(true);
     setErrorMessage("");
 
@@ -40,26 +42,30 @@ export default function HomePage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  };
+
+  const handleTrendingClick = (movieId) => {
+    navigate(`/movie/${movieId}`);
+  };
 
   // Pull aggregated trending data from Appwrite
-  const loadTrendingMovies = useCallback(async () => {
+  const loadTrendingMovies = async () => {
     try {
       const movies = await getTrendingMovies();
       setTrendingMovies(movies ?? []);
     } catch (error) {
       console.log(`Error fetching trending movies: ${error}`);
     }
-  }, []);
+  };
 
   useEffect(() => {
     loadMovies(debouncedSearchItem);
-  }, [debouncedSearchItem, loadMovies]);
+  }, [debouncedSearchItem]);
 
   useEffect(() => {
     // Populate trending carousel as soon as the page mounts
     loadTrendingMovies();
-  }, [loadTrendingMovies]);
+  }, []);
 
   return (
     <main>
@@ -80,7 +86,13 @@ export default function HomePage() {
             <h2>Trending Movies</h2>
             <ul>
               {trendingMovies.map((movie, index) => (
-                <li key={movie.$id}>
+                <li
+                  key={movie.$id}
+                  onClick={() => {
+                    handleTrendingClick(movie.movie_id);
+                  }}
+                  className="cursor-pointer"
+                >
                   <p>{index + 1}</p>
                   <img src={movie.poster_url} alt={movie.title} />
                 </li>

@@ -21,7 +21,7 @@ export default function MovieCard({
 
   // RENDER
   return (
-    <div className="movie-card" onClick={handleCardClick}>
+    <div className="movie-card cursor-pointer" onClick={handleCardClick}>
       {/* Use TMDB poster when available; fallback image prevents broken UI */}
       <img
         src={

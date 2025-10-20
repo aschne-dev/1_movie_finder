@@ -1,9 +1,9 @@
 import { Route, Routes } from "react-router";
 import Header from "./components/Header";
-import HomePage from "./components/pages/HomePage";
-import LoginPage from "./components/pages/LoginPage";
-import MovieDetailsPage from "./components/pages/MovieDetailsPage";
-import RegisterPage from "./components/pages/RegisterPage";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import MovieDetailsPage from "./pages/MovieDetailsPage";
+import RegisterPage from "./pages/RegisterPage";
 import { AuthProvider } from "./utils/AuthContext";
 import PrivateRoutes from "./utils/PrivateRoutes";
 

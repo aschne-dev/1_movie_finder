@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { useAuth } from "../../utils/AuthContext";
+import { useAuth } from "../utils/AuthContext";
 
 export default function RegisterPage() {
   // STATE
