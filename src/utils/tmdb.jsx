@@ -67,3 +67,29 @@ export const getMovieDetail = async (movieId) => {
 
   return data;
 };
+
+export const getMovieRecommendations = async (movieId) => {
+  if (!movieId) {
+    throw new Error("A movie identifier is required.");
+  }
+
+  const endpoint = `${API_BASE_URL}/movie/${movieId}/recommendations?language=en-US&page=1`;
+  const response = await fetch(endpoint, API_OPTIONS);
+
+  let data;
+
+  try {
+    data = await response.json();
+  } catch (error) {
+    throw new Error(`TMDB response could not be parsed. ${error}`);
+  }
+
+  if (!response.ok) {
+    const message =
+      data?.status_message ||
+      `TMDB request failed (${response.status} ${response.statusText})`;
+    throw new Error(message);
+  }
+
+  return data.results;
+};
