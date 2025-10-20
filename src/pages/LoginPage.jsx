@@ -44,7 +44,7 @@ export default function LoginPage() {
     <div>
       <div className="pattern" />
 
-      <div className="wrapper">
+      <div className="wrapper mt-10">
         <div className="flex justify-center">
           {/* Centered login form that forwards submission to context */}
           <form className="login-page" onSubmit={handleSubmit}>

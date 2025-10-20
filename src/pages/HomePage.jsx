@@ -73,11 +73,12 @@ export default function HomePage() {
 
       <div className="wrapper">
         <header>
-          <img src="./hero.png" alt="Hero Banner" />
-          <h1>
-            Find <span className="text-gradient">Movies</span> You'll Enjoy
-            Without The Hassle
-          </h1>
+          <img src="./hero2.png" className="w-[200px]" alt="Hero Banner" />
+          <h1>Movie Finder</h1>
+          <h2>
+            Discover <span className="text-gradient">Stories</span> You’ll Love
+            In Seconds
+          </h2>
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </header>
 
