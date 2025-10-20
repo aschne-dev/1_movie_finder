@@ -82,7 +82,7 @@ export default function MovieDetailsPage() {
             ) : errorMessage ? (
               <p className="text-red-500">{errorMessage}</p>
             ) : movie ? (
-              <div className="">
+              <div>
                 {/* Titre */}
                 <h2 className="flex justify-center">{movie.title}</h2>
 
