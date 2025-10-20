@@ -1,8 +1,9 @@
 import { Route, Routes } from "react-router";
 import Header from "./components/Header";
-import HomePage from "./components/pages/HomePage";
-import LoginPage from "./components/pages/LoginPage";
-import RegisterPage from "./components/pages/RegisterPage";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
+import MovieDetailsPage from "./pages/MovieDetailsPage";
+import RegisterPage from "./pages/RegisterPage";
 import { AuthProvider } from "./utils/AuthContext";
 import PrivateRoutes from "./utils/PrivateRoutes";
 
@@ -18,6 +19,7 @@ export default function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/movie/:id" element={<MovieDetailsPage />} />
 
           {/* Guarded routes require an authenticated user */}
           <Route element={<PrivateRoutes />}>
