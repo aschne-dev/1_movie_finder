@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import Spinner from "../components/Spinner";
 import { account } from "./appwrite";
 
 // Central auth context exposes session state and helpers
@@ -104,7 +105,11 @@ export const AuthProvider = ({ children }) => {
   // RENDER
   return (
     <AuthContext.Provider value={contextData}>
-      {loading && <p className="text-gray-100">Loading...</p>}
+      {loading && (
+        <div className="absolute mt-32">
+          <Spinner />
+        </div>
+      )}
       {children}
     </AuthContext.Provider>
   );

@@ -19,7 +19,7 @@ export default function RegisterPage() {
     if (user) {
       navigate("/");
     }
-  }, []);
+  }, [user, navigate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -55,7 +55,7 @@ export default function RegisterPage() {
     <div>
       <div className="pattern" />
 
-      <div className="wrapper">
+      <div className="wrapper mt-10">
         <div className="flex justify-center">
           <form className="login-page" onSubmit={handleSubmit}>
             <label className="">Email :</label>
