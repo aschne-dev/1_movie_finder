@@ -7,6 +7,7 @@ export default function MovieDetailsPage() {
   // STATE
   const { id } = useParams();
 
+  // Track detail payload, related titles, and request status indicators
   const [movie, setMovie] = useState(null);
   const [recommendations, setRecommendations] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
@@ -15,6 +16,7 @@ export default function MovieDetailsPage() {
   const navigate = useNavigate();
 
   // COMPORTEMENTS
+  // Request TMDB for the detailed record of the current movie id
   const loadMovieDetails = async () => {
     setIsLoading(true);
     setErrorMessage("");
@@ -36,6 +38,7 @@ export default function MovieDetailsPage() {
     }
   };
 
+  // Fetch TMDB recommendations to populate the related section
   const loadMovieRecommendations = async () => {
     setIsLoading(true);
     setErrorMessage("");
@@ -43,7 +46,6 @@ export default function MovieDetailsPage() {
     try {
       const results = await getMovieRecommendations(id);
       setRecommendations(results);
-      console.log("results = " + results);
     } catch (error) {
       const message =
         error instanceof Error
@@ -62,6 +64,7 @@ export default function MovieDetailsPage() {
   };
 
   useEffect(() => {
+    // Keep movie detail view in sync whenever the route parameter changes
     loadMovieDetails();
     loadMovieRecommendations();
   }, [id]);
@@ -146,6 +149,7 @@ export default function MovieDetailsPage() {
         </section>
 
         {/* Recommendations */}
+        {/* Reuse the trending layout so clicking pushes a new movie detail */}
         {recommendations.length > 0 && (
           <section className="trending">
             <h2 className="text-white">Recommendations</h2>

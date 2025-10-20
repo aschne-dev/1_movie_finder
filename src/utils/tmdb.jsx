@@ -1,3 +1,4 @@
+// Centralise TMDB configuration so headers stay consistent across requests
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
@@ -43,6 +44,7 @@ export const fetchMovies = async (query = "") => {
 export const getPosterUrl = (posterPath, size = "w500") =>
   posterPath ? `https://image.tmdb.org/t/p/${size}/${posterPath}` : null;
 
+// Retrieve a fully fledged movie record, raising surfaced API errors when needed
 export const getMovieDetail = async (movieId) => {
   if (!movieId) {
     throw new Error("A movie identifier is required.");
@@ -68,6 +70,7 @@ export const getMovieDetail = async (movieId) => {
   return data;
 };
 
+// Ask TMDB for recommended titles and return the original payload upstream
 export const getMovieRecommendations = async (movieId) => {
   if (!movieId) {
     throw new Error("A movie identifier is required.");
