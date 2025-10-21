@@ -24,8 +24,7 @@ export default function MovieCard({
 
   const handleToggleFavorite = async () => {
     if (!user) {
-      alert("You need to be logged in");
-      return;
+      navigate("/login");
     }
 
     try {

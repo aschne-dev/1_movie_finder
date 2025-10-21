@@ -71,7 +71,7 @@ export const getTrendingMovies = async () => {
   }
 };
 
-export const addNewFavorite = async (userId, movieId) => {
+export const addAppwriteFavorite = async (userId, movieId) => {
   if (!userId || !movieId) {
     throw new Error("userId and movie.id are required to store a favorite");
   }
@@ -113,7 +113,7 @@ export const addNewFavorite = async (userId, movieId) => {
   }
 };
 
-export const removeAFavorite = async (userId, movieId) => {
+export const removeAppwriteFavorite = async (userId, movieId) => {
   if (!userId || !movieId) {
     throw new Error("userId and movie.id are required to remove a favorite");
   }

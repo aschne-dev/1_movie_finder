@@ -9,9 +9,9 @@ import {
 import Spinner from "../components/Spinner";
 import {
   account,
-  addNewFavorite,
+  addAppwriteFavorite,
   loadUserFavorites,
-  removeAFavorite,
+  removeAppwriteFavorite,
 } from "./appwrite";
 
 // Central auth context exposes session state and helpers
@@ -60,12 +60,6 @@ export const AuthProvider = ({ children }) => {
     // Ensure we restore any existing session on mount
     checkUserStatus();
   }, [checkUserStatus]);
-
-  useEffect(() => {
-    // Ensure we restore any existing session on mount
-
-    console.log("favorites=", favorites);
-  }, [favorites]);
 
   const registerUser = async (userInfo) => {
     setLoading(true);
@@ -121,14 +115,19 @@ export const AuthProvider = ({ children }) => {
   const addFavorite = async (movieId) => {
     if (!user) return;
 
-    await addNewFavorite(user.$id, movieId);
-    setFavorites((prev) => {
-      const normalizedId = String(movieId);
-      if (prev.includes(normalizedId)) {
-        return prev;
-      }
-      return [...prev, normalizedId];
-    });
+    const normalizedId = String(movieId);
+
+    try {
+      await addAppwriteFavorite(user.$id, normalizedId);
+      setFavorites((prev) => {
+        if (prev.includes(normalizedId)) {
+          return prev;
+        }
+        return [...prev, normalizedId];
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const removeFavorite = async (movieId) => {
@@ -137,8 +136,7 @@ export const AuthProvider = ({ children }) => {
     const normalizedId = String(movieId);
 
     try {
-      await removeAFavorite(user.$id, normalizedId);
-
+      await removeAppwriteFavorite(user.$id, normalizedId);
       setFavorites((prev) => prev.filter((id) => id !== normalizedId));
     } catch (error) {
       console.log(error);
@@ -151,9 +149,9 @@ export const AuthProvider = ({ children }) => {
     loginUser,
     logoutUser,
     checkUserStatus,
+    favorites,
     addFavorite,
     removeFavorite,
-    favorites,
     loading,
   };
 
