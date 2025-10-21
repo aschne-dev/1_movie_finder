@@ -12,6 +12,7 @@ import {
   addAppwriteFavorite,
   loadUserFavorites,
   removeAppwriteFavorite,
+  fetchAppwriteFavorite,
 } from "./appwrite";
 
 // Central auth context exposes session state and helpers
@@ -22,6 +23,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [favorites, setFavorites] = useState([]);
+  const [favoriteMovies, setFavoriteMovies] = useState([]);
 
   // COMPORTEMENTS
   const checkUserStatus = useCallback(async () => {
@@ -44,6 +46,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         setUser(null);
         setFavorites([]);
+        setFavoriteMovies([]);
       }
     } catch (error) {
       if (error?.code !== 401) {
@@ -51,6 +54,7 @@ export const AuthProvider = ({ children }) => {
       }
       setUser(null);
       setFavorites([]);
+      setFavoriteMovies([]);
     } finally {
       setLoading(false);
     }
@@ -109,6 +113,7 @@ export const AuthProvider = ({ children }) => {
       .finally(() => {
         setUser(null);
         setFavorites([]);
+        setFavoriteMovies([]);
       });
   };
 
@@ -143,6 +148,25 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const fetchFavorites = useCallback(async () => {
+    if (!user) return [];
+
+    if (favorites.length === 0) {
+      setFavoriteMovies([]);
+      return [];
+    }
+
+    try {
+      const movies = await fetchAppwriteFavorite(favorites);
+      setFavoriteMovies(movies);
+      return movies;
+    } catch (error) {
+      console.log(error);
+      setFavoriteMovies([]);
+      throw error;
+    }
+  }, [user, favorites]);
+
   const contextData = {
     user,
     registerUser,
@@ -150,8 +174,10 @@ export const AuthProvider = ({ children }) => {
     logoutUser,
     checkUserStatus,
     favorites,
+    favoriteMovies,
     addFavorite,
     removeFavorite,
+    fetchFavorites,
     loading,
   };
 

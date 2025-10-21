@@ -1,4 +1,5 @@
 import { Account, Client, ID, Query, TablesDB } from "appwrite";
+import { getMovieDetail } from "./tmdb";
 
 const PROJECT_ID = import.meta.env.VITE_APPWRITE_PROJECT_ID;
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABSE_ID;
@@ -168,4 +169,25 @@ export const loadUserFavorites = async (userId) => {
     console.log(error);
     throw error;
   }
+};
+
+export const fetchAppwriteFavorite = async (favorites = []) => {
+  if (!Array.isArray(favorites) || favorites.length === 0) {
+    return [];
+  }
+
+  const uniqueIds = [...new Set(favorites.map((id) => String(id)))];
+
+  const movies = await Promise.all(
+    uniqueIds.map(async (movieId) => {
+      try {
+        return await getMovieDetail(movieId);
+      } catch (error) {
+        console.log(`Failed to fetch TMDB details for movie ${movieId}`, error);
+        return null;
+      }
+    })
+  );
+
+  return movies.filter(Boolean);
 };
