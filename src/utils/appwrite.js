@@ -3,6 +3,8 @@ import { Account, Client, ID, Query, TablesDB } from "appwrite";
 const PROJECT_ID = import.meta.env.VITE_APPWRITE_PROJECT_ID;
 const DATABASE_ID = import.meta.env.VITE_APPWRITE_DATABSE_ID;
 const TABLE_ID = import.meta.env.VITE_APPWRITE_TABLE_NAME;
+const FAVORITES_TABLE_ID =
+  import.meta.env.VITE_APPWRITE_FAVORITES_TABLE_NAME ?? "favorites";
 
 // Shared Appwrite client powering account and tables interactions
 const client = new Client()
@@ -66,5 +68,104 @@ export const getTrendingMovies = async () => {
     return result.rows;
   } catch (error) {
     console.log(error);
+  }
+};
+
+export const addNewFavorite = async (userId, movieId) => {
+  if (!userId || !movieId) {
+    throw new Error("userId and movie.id are required to store a favorite");
+  }
+
+  const normalizedUserId = String(userId);
+  const normalizedMovieId = String(movieId);
+
+  try {
+    const existing = await tables.listRows({
+      databaseId: DATABASE_ID,
+      tableId: FAVORITES_TABLE_ID,
+      queries: [
+        Query.equal("user_id", normalizedUserId),
+        Query.equal("movie_id", normalizedMovieId),
+        Query.limit(1),
+      ],
+    });
+
+    if (existing.rows.length > 0) {
+      return String(existing.rows[0].movie_id);
+    }
+
+    const payload = {
+      user_id: normalizedUserId,
+      movie_id: normalizedMovieId,
+    };
+
+    await tables.createRow({
+      databaseId: DATABASE_ID,
+      tableId: FAVORITES_TABLE_ID,
+      rowId: ID.unique(),
+      data: payload,
+    });
+
+    //return normalizedMovieId;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const removeAFavorite = async (userId, movieId) => {
+  if (!userId || !movieId) {
+    throw new Error("userId and movie.id are required to remove a favorite");
+  }
+
+  const normalizedUserId = String(userId);
+  const normalizedMovieId = String(movieId);
+
+  try {
+    const existing = await tables.listRows({
+      databaseId: DATABASE_ID,
+      tableId: FAVORITES_TABLE_ID,
+      queries: [
+        Query.equal("user_id", normalizedUserId),
+        Query.equal("movie_id", normalizedMovieId),
+        Query.limit(1),
+      ],
+    });
+
+    if (existing.rows.length === 0) {
+      return null;
+    }
+
+    await tables.deleteRow({
+      databaseId: DATABASE_ID,
+      tableId: FAVORITES_TABLE_ID,
+      rowId: existing.rows[0].$id,
+    });
+
+    return normalizedMovieId;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const loadUserFavorites = async (userId) => {
+  if (!userId) {
+    throw new Error("userId is required to store a favorite");
+  }
+
+  const normalizedUserId = String(userId);
+
+  try {
+    const result = await tables.listRows({
+      databaseId: DATABASE_ID,
+      tableId: FAVORITES_TABLE_ID,
+      queries: [Query.equal("user_id", normalizedUserId)],
+    });
+
+    return result.rows;
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
 };

@@ -7,7 +7,12 @@ import {
   useState,
 } from "react";
 import Spinner from "../components/Spinner";
-import { account } from "./appwrite";
+import {
+  account,
+  addNewFavorite,
+  loadUserFavorites,
+  removeAFavorite,
+} from "./appwrite";
 
 // Central auth context exposes session state and helpers
 const AuthContext = createContext();
@@ -16,6 +21,7 @@ export const AuthProvider = ({ children }) => {
   // STATE
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [favorites, setFavorites] = useState([]);
 
   // COMPORTEMENTS
   const checkUserStatus = useCallback(async () => {
@@ -27,14 +33,24 @@ export const AuthProvider = ({ children }) => {
         // Session is valid, hydrate user with full account details
         const accountDetails = await account.get();
         setUser(accountDetails);
+
+        // Hydrate favorites
+        const userFavorites = await loadUserFavorites(accountDetails.$id);
+        setFavorites(
+          userFavorites
+            .map((favorite) => String(favorite.movie_id))
+            .filter(Boolean)
+        );
       } else {
         setUser(null);
+        setFavorites([]);
       }
     } catch (error) {
       if (error?.code !== 401) {
         console.log(error);
       }
       setUser(null);
+      setFavorites([]);
     } finally {
       setLoading(false);
     }
@@ -44,6 +60,12 @@ export const AuthProvider = ({ children }) => {
     // Ensure we restore any existing session on mount
     checkUserStatus();
   }, [checkUserStatus]);
+
+  useEffect(() => {
+    // Ensure we restore any existing session on mount
+
+    console.log("favorites=", favorites);
+  }, [favorites]);
 
   const registerUser = async (userInfo) => {
     setLoading(true);
@@ -90,7 +112,37 @@ export const AuthProvider = ({ children }) => {
     account
       .deleteSession({ sessionId: "current" })
       .catch((error) => console.log(error))
-      .finally(() => setUser(null));
+      .finally(() => {
+        setUser(null);
+        setFavorites([]);
+      });
+  };
+
+  const addFavorite = async (movieId) => {
+    if (!user) return;
+
+    await addNewFavorite(user.$id, movieId);
+    setFavorites((prev) => {
+      const normalizedId = String(movieId);
+      if (prev.includes(normalizedId)) {
+        return prev;
+      }
+      return [...prev, normalizedId];
+    });
+  };
+
+  const removeFavorite = async (movieId) => {
+    if (!user) return;
+
+    const normalizedId = String(movieId);
+
+    try {
+      await removeAFavorite(user.$id, normalizedId);
+
+      setFavorites((prev) => prev.filter((id) => id !== normalizedId));
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const contextData = {
@@ -99,6 +151,9 @@ export const AuthProvider = ({ children }) => {
     loginUser,
     logoutUser,
     checkUserStatus,
+    addFavorite,
+    removeFavorite,
+    favorites,
     loading,
   };
 

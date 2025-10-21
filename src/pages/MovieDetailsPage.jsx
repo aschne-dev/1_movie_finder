@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Spinner from "../components/Spinner";
-import { getMovieDetail, getMovieRecommendations } from "../utils/tmdb";
+import {
+  getMovieDetail,
+  getMovieRecommendations,
+  getPosterUrl,
+} from "../utils/tmdb";
 
 export default function MovieDetailsPage() {
   // STATE
@@ -93,7 +97,7 @@ export default function MovieDetailsPage() {
                   className="mt-5"
                   src={
                     movie.backdrop_path
-                      ? `https://image.tmdb.org/t/p/w500/${movie.backdrop_path}`
+                      ? getPosterUrl(movie.backdrop_path)
                       : "/no-movie.png"
                   }
                   alt={movie.title}
