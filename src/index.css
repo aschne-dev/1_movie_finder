@@ -168,17 +168,17 @@
       @apply mt-2 bg-gray-100 rounded-2xl px-3 text-dark-100;
     }
 
-    & button {
-      @apply mt-10 bg-gray-100 rounded-2xl text-dark-100 cursor-pointer;
-    }
-
-    & button:hover {
-      @apply bg-dark-100 text-gray-100;
-    }
-
     & p {
       @apply flex justify-end mt-3;
     }
+  }
+
+  .button {
+    @apply mt-10 bg-gray-100 rounded-2xl text-dark-100 cursor-pointer px-5 py-1 text-xl;
+  }
+
+  .button:hover {
+    @apply bg-dark-100 text-gray-100;
   }
 }
 

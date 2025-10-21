@@ -84,7 +84,9 @@ export default function MovieDetailsPage() {
             ) : movie ? (
               <div>
                 {/* Titre */}
-                <h2 className="flex justify-center">{movie.title}</h2>
+                <h2 className="flex justify-center text-gradient">
+                  {movie.title}
+                </h2>
 
                 {/* Backdrop */}
                 <img

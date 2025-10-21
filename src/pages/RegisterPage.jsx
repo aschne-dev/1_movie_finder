@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useAuth } from "../utils/AuthContext";
 
 export default function RegisterPage() {
@@ -113,7 +113,10 @@ export default function RegisterPage() {
               <p className="text-red-600 flex justify-start">{error}</p>
             )}
 
-            <button>Register</button>
+            <button className="button">Register</button>
+            <p>
+              Already have an account ?<Link to="/login">Login</Link>
+            </p>
           </form>
         </div>
       </div>
