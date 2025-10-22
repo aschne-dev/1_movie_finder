@@ -1,20 +1,25 @@
 # Movie Finder
 
-Projet React + Vite réalisé en suivant le tutoriel YouTube de [JavaScript Mastery](https://www.youtube.com/watch?v=dCLhUialKPQ). J’ai choisi ce tuto pour poser les bases de mon portfolio, en adaptant certaines parties pour apprendre en autonomie :
+> Projet d’entrée en matière pour valider les fondamentaux React.
 
-- Appwrite côté backend, mais avec la nouvelle API **Tables** au lieu des collections du tutoriel original.
+Movie Finder est un premier projet personnel bâti sur React + Vite. Je suis parti d’un tutoriel de [JavaScript Mastery](https://www.youtube.com/watch?v=dCLhUialKPQ) que j’ai progressivement adapté pour apprendre en autonomie et poser une base saine dans mon portfolio :
+
+- Backend Appwrite en utilisant la nouvelle API **Tables** plutôt que les anciennes collections.
+- Gestion de l’authentification (inscription / login) avec état global et pages privées.
+- Ajout d’un système de favoris persistant (Appwrite + TMDB) réutilisable via un hook partagé.
 - Déploiement continu via **Vercel**.
 
 ## Fonctionnalités
 
 - Recherche de films via l’API TMDB avec debounce pour limiter les appels.
-- Listing des recherches les plus populaires stockées dans Appwrite Tables.
-- Affichage des films tendances mis à jour dynamiquement.
+- Mise en cache des tendances Appwrite, masquées lorsque l’utilisateur recherche activement.
+- Ajout/retrait de favoris synchronisés entre Appwrite et l’interface (hook réutilisable + bouton dédié).
+- Page profil privée affichant les favoris enrichis par TMDB.
 
 ## Pile technique
 
-- **Front** : React 19, Vite, Tailwind CSS.
-- **Backend BaaS** : Appwrite (TablesDB, requêtes et mutations via SDK Web).
+- **Front** : React 19, Vite, Tailwind CSS (hooks personnalisés, routes privées).
+- **Backend BaaS** : Appwrite (TablesDB, requêtes/mutations via SDK Web).
 - **Déploiement** : Vercel (environnements Preview & Production, variables `VITE_*`).
 
 ## Installation
@@ -31,6 +36,7 @@ VITE_TMDB_API_KEY=<clé TMDB v4 Bearer>
 VITE_APPWRITE_PROJECT_ID=<id projet Appwrite>
 VITE_APPWRITE_DATABSE_ID=<id base Appwrite>
 VITE_APPWRITE_TABLE_NAME=<table metrics>
+VITE_APPWRITE_FAVORITES_TABLE_NAME=<table favorites>
 ```
 
 ### Déploiement Vercel
@@ -41,6 +47,8 @@ VITE_APPWRITE_TABLE_NAME=<table metrics>
 4. Dans la console Appwrite, autoriser le domaine Vercel (Settings → Platforms).
 5. **Production** : https://netflix-six-pearl-90.vercel.app/
 
+👉 Visualisation directe : https://netflix-six-pearl-90.vercel.app/
+
 ### Workflow Git
 
 - Repo versionné sur GitHub (portfolio).
@@ -50,4 +58,9 @@ VITE_APPWRITE_TABLE_NAME=<table metrics>
 
 ## Objectifs
 
-C’est mon premier projet publié pour me former et alimenter mon portfolio GitHub. Le but est de documenter mon apprentissage : implémenter un tuto existant, comprendre chaque couche (front, BaaS, déploiement) et laisser une base propre sur laquelle je pourrai itérer plus tard.
+Ce dépôt incarne mon premier projet React « sérieux ». L’objectif est double :
+
+1. **Valider les fondamentaux** : lifecycle hooks, gestion d’état global, appels API, routing, animations légères.
+2. **Structurer une base saine** : documentation claire, code commenté avec parcimonie, et architecture prête à évoluer (hook favoris, contexte d’auth, composants réutilisables).
+
+La suite envisagée : tests automatisés, raffinements UI (animations sur les favoris, skeleton loading) et itérations sur les bonnes pratiques que je découvrirai au fur et à mesure.
