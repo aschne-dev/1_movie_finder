@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import FavoriteButton from "../components/FavoriteButton";
 import Spinner from "../components/Spinner";
+import { useAuth } from "../utils/AuthContext";
 import {
   getMovieDetail,
   getMovieRecommendations,
@@ -13,6 +15,7 @@ export default function MovieDetailsPage() {
 
   // Track detail payload, related titles, and request status indicators
   const [movie, setMovie] = useState(null);
+  const { favorites } = useAuth();
   const [recommendations, setRecommendations] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -80,6 +83,7 @@ export default function MovieDetailsPage() {
 
       <div className="wrapper movie-card pt-20">
         <section name="MovieDetail">
+          <FavoriteButton movieId={id} className={"top-20"} />
           <div>
             {isLoading ? (
               <Spinner />

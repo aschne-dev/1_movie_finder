@@ -1,32 +1,35 @@
 import { ID } from "appwrite";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import Spinner from "../components/Spinner";
 import {
   account,
   addAppwriteFavorite,
+  fetchAppwriteFavorite,
   loadUserFavorites,
   removeAppwriteFavorite,
-  fetchAppwriteFavorite,
 } from "./appwrite";
+import { getMovieDetail } from "./tmdb";
 
 // Central auth context exposes session state and helpers
+// Top-level React context exposing auth session and favorite movie state
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   // STATE
-  const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState(null);
-  const [favorites, setFavorites] = useState([]);
-  const [favoriteMovies, setFavoriteMovies] = useState([]);
+  const [loading, setLoading] = useState(true); // Tracks session restoration and mutations
+  const [user, setUser] = useState(null); // Appwrite account details when logged in
+  const [favoriteMovies, setFavoriteMovies] = useState([]); // Favorite movies hydrated with TMDB data
+  const favoriteIds = useMemo(
+    () => favoriteMovies.map((movie) => String(movie.id)),
+    [favoriteMovies]
+  );
 
   // COMPORTEMENTS
-  const checkUserStatus = useCallback(async () => {
+  /**
+   * Query Appwrite to restore the current session and preload favorites.
+   * Called on mount and after auth mutations to keep state consistent.
+   */
+  const checkUserStatus = async () => {
     try {
       // Check if a valid session cookie already exists
       const session = await account.getSession({ sessionId: "current" });
@@ -36,16 +39,25 @@ export const AuthProvider = ({ children }) => {
         const accountDetails = await account.get();
         setUser(accountDetails);
 
-        // Hydrate favorites
+        // Hydrate favorites by pulling IDs from Appwrite, then fetching TMDB details
         const userFavorites = await loadUserFavorites(accountDetails.$id);
-        setFavorites(
-          userFavorites
-            .map((favorite) => String(favorite.movie_id))
-            .filter(Boolean)
-        );
+        const movieIds = (userFavorites ?? [])
+          .map((favorite) => String(favorite.movie_id))
+          .filter(Boolean);
+
+        if (movieIds.length === 0) {
+          setFavoriteMovies([]);
+        } else {
+          try {
+            const movies = await fetchAppwriteFavorite(movieIds);
+            setFavoriteMovies(movies);
+          } catch (favoritesError) {
+            console.log(favoritesError);
+            setFavoriteMovies([]);
+          }
+        }
       } else {
         setUser(null);
-        setFavorites([]);
         setFavoriteMovies([]);
       }
     } catch (error) {
@@ -53,18 +65,20 @@ export const AuthProvider = ({ children }) => {
         console.log(error);
       }
       setUser(null);
-      setFavorites([]);
       setFavoriteMovies([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
     // Ensure we restore any existing session on mount
     checkUserStatus();
-  }, [checkUserStatus]);
+  }, []);
 
+  /**
+   * Create an Appwrite account, log the user in, then refresh local state.
+   */
   const registerUser = async (userInfo) => {
     setLoading(true);
     try {
@@ -87,6 +101,9 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   };
 
+  /**
+   * Authenticate with email/password and refresh session context.
+   */
   const loginUser = async (userInfo) => {
     setLoading(true);
 
@@ -105,6 +122,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Destroy the Appwrite session and clear local caches.
+   */
   const logoutUser = () => {
     // Remove the active session on the server and clear local state
     account
@@ -112,11 +132,13 @@ export const AuthProvider = ({ children }) => {
       .catch((error) => console.log(error))
       .finally(() => {
         setUser(null);
-        setFavorites([]);
         setFavoriteMovies([]);
       });
   };
 
+  /**
+   * Persist a movie ID to Appwrite favorites and append its TMDB details locally.
+   */
   const addFavorite = async (movieId) => {
     if (!user) return;
 
@@ -124,17 +146,24 @@ export const AuthProvider = ({ children }) => {
 
     try {
       await addAppwriteFavorite(user.$id, normalizedId);
-      setFavorites((prev) => {
-        if (prev.includes(normalizedId)) {
-          return prev;
-        }
-        return [...prev, normalizedId];
-      });
+
+      const exists = favoriteMovies.some(
+        (movie) => String(movie.id) === normalizedId
+      );
+      if (exists) {
+        return;
+      }
+
+      const movieDetail = await getMovieDetail(normalizedId);
+      setFavoriteMovies((prev) => [...prev, movieDetail]);
     } catch (error) {
       console.log(error);
     }
   };
 
+  /**
+   * Remove a favorite movie both remotely (Appwrite) and locally.
+   */
   const removeFavorite = async (movieId) => {
     if (!user) return;
 
@@ -142,22 +171,32 @@ export const AuthProvider = ({ children }) => {
 
     try {
       await removeAppwriteFavorite(user.$id, normalizedId);
-      setFavorites((prev) => prev.filter((id) => id !== normalizedId));
+      setFavoriteMovies((prev) =>
+        prev.filter((movie) => String(movie.id) !== normalizedId)
+      );
     } catch (error) {
       console.log(error);
     }
   };
 
-  const fetchFavorites = useCallback(async () => {
+  /**
+   * Refresh the favorite movie list from Appwrite and TMDB.
+   */
+  const fetchFavorites = async () => {
     if (!user) return [];
 
-    if (favorites.length === 0) {
-      setFavoriteMovies([]);
-      return [];
-    }
-
     try {
-      const movies = await fetchAppwriteFavorite(favorites);
+      const userFavorites = await loadUserFavorites(user.$id);
+      const movieIds = (userFavorites ?? [])
+        .map((favorite) => String(favorite.movie_id))
+        .filter(Boolean);
+
+      if (movieIds.length === 0) {
+        setFavoriteMovies([]);
+        return [];
+      }
+
+      const movies = await fetchAppwriteFavorite(movieIds);
       setFavoriteMovies(movies);
       return movies;
     } catch (error) {
@@ -165,7 +204,7 @@ export const AuthProvider = ({ children }) => {
       setFavoriteMovies([]);
       throw error;
     }
-  }, [user, favorites]);
+  };
 
   const contextData = {
     user,
@@ -173,7 +212,7 @@ export const AuthProvider = ({ children }) => {
     loginUser,
     logoutUser,
     checkUserStatus,
-    favorites,
+    favorites: favoriteIds,
     favoriteMovies,
     addFavorite,
     removeFavorite,

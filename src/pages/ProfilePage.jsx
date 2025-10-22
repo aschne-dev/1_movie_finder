@@ -1,25 +1,25 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
 import MovieCard from "../components/MovieCard";
 import Spinner from "../components/Spinner";
 import { useAuth } from "../utils/AuthContext";
 
 export default function ProfilePage() {
   // STATE
+  // Local loading handles the fetchFavorites lifecycle separately from auth loading
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [favoriteList, setFavoriteList] = useState([]);
+  const { user, favoriteMovies, fetchFavorites, loading } = useAuth();
 
-  const { user, fetchFavorites } = useAuth();
-  const navigate = useNavigate();
-
+  // COMPORTEMENTS
+  /**
+   * Pull the latest favorites from Appwrite/TMDB, displaying errors inline when needed.
+   */
   const loadFavorites = async () => {
     setIsLoading(true);
     setErrorMessage("");
 
     try {
-      const movies = await fetchFavorites();
-      setFavoriteList(movies);
+      await fetchFavorites();
     } catch (error) {
       console.log(`Error fetching favorites: ${error}`);
       const message =
@@ -27,23 +27,38 @@ export default function ProfilePage() {
           ? error.message
           : "Error fetching favorites. Please try again later.";
       setErrorMessage(message);
-      setFavoriteList([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // COMPORTEMENTS
   useEffect(() => {
-    // Redirect away if a session already exists
-    if (!user) {
-      navigate("/");
-    } else {
+    // Wait for auth status to resolve before fetching favorites
+    if (loading) {
+      return;
+    }
+
+    if (user) {
       loadFavorites();
     }
-  }, [user, navigate, fetchFavorites]);
+  }, [user, loading]);
 
   // RENDER
+  if (loading) {
+    return (
+      <div>
+        <div className="pattern" />
+        <div className="wrapper pt-20 text-white flex items-center justify-center">
+          <Spinner />
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div>
       <div className="pattern" />
@@ -53,10 +68,11 @@ export default function ProfilePage() {
           <div className="mt-10 px-10">
             <ul className="space-y-4">
               <li>
-                <p>Your Name :</p> {user.name}
+                <p className="text-gray-400">Your Name :</p> {user.name}
               </li>
               <li>
-                <p>Your Email Address:</p> {user.email}
+                <p className="text-gray-400">Your Email Address:</p>{" "}
+                {user.email}
               </li>
             </ul>
           </div>
@@ -69,12 +85,14 @@ export default function ProfilePage() {
             <Spinner />
           ) : errorMessage ? (
             <p className="text-red-500">{errorMessage}</p>
-          ) : (
+          ) : favoriteMovies.length > 0 ? (
             <ul>
-              {favoriteList.map((movie) => (
+              {favoriteMovies.map((movie) => (
                 <MovieCard key={movie.id} movie={movie} />
               ))}
             </ul>
+          ) : (
+            <p className="text-gray-400 text-center">No favorites yet.</p>
           )}
 
           {errorMessage && <p className="text-red-500">{errorMessage}</p>}

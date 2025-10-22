@@ -83,7 +83,13 @@ export default function HomePage() {
         </header>
 
         {trendingMovies.length > 0 && (
-          <section className="trending">
+          <section
+            className={`trending transition-all duration-300 ${
+              debouncedSearchItem
+                ? "opacity-0 max-h-0 overflow-hidden"
+                : "opacity-100 max-h-[400px]"
+            }`}
+          >
             <h2>Trending Movies</h2>
             <ul>
               {trendingMovies.map((movie, index) => (
