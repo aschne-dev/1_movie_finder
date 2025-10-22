@@ -79,7 +79,7 @@ export default function LoginPage() {
             {error && (
               <p className="text-red-600 flex justify-start">{error}</p>
             )}
-            <button>Login</button>
+            <button className="button">Login</button>
             <p>
               Don't have an account yet ?<Link to="/register">Register</Link>
             </p>

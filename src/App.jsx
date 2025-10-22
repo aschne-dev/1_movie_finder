@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import MovieDetailsPage from "./pages/MovieDetailsPage";
+import ProfilePage from "./pages/ProfilePage";
 import RegisterPage from "./pages/RegisterPage";
 import { AuthProvider } from "./utils/AuthContext";
 import PrivateRoutes from "./utils/PrivateRoutes";
@@ -23,7 +24,7 @@ export default function App() {
 
           {/* Guarded routes require an authenticated user */}
           <Route element={<PrivateRoutes />}>
-            <Route path="/profile" element={<HomePage />} />
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Routes>
       </AuthProvider>

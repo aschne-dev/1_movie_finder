@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
+import FavoriteButton from "../components/FavoriteButton";
 import Spinner from "../components/Spinner";
-import { getMovieDetail, getMovieRecommendations } from "../utils/tmdb";
+import { useAuth } from "../utils/AuthContext";
+import {
+  getMovieDetail,
+  getMovieRecommendations,
+  getPosterUrl,
+} from "../utils/tmdb";
 
 export default function MovieDetailsPage() {
   // STATE
@@ -9,6 +15,7 @@ export default function MovieDetailsPage() {
 
   // Track detail payload, related titles, and request status indicators
   const [movie, setMovie] = useState(null);
+  const { favorites } = useAuth();
   const [recommendations, setRecommendations] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -76,22 +83,25 @@ export default function MovieDetailsPage() {
 
       <div className="wrapper movie-card pt-20">
         <section name="MovieDetail">
+          <FavoriteButton movieId={id} className={"top-20"} />
           <div>
             {isLoading ? (
               <Spinner />
             ) : errorMessage ? (
               <p className="text-red-500">{errorMessage}</p>
             ) : movie ? (
-              <div className="">
+              <div>
                 {/* Titre */}
-                <h2 className="flex justify-center">{movie.title}</h2>
+                <h2 className="flex justify-center text-gradient">
+                  {movie.title}
+                </h2>
 
                 {/* Backdrop */}
                 <img
                   className="mt-5"
                   src={
                     movie.backdrop_path
-                      ? `https://image.tmdb.org/t/p/w500/${movie.backdrop_path}`
+                      ? getPosterUrl(movie.backdrop_path)
                       : "/no-movie.png"
                   }
                   alt={movie.title}
