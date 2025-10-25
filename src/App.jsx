@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage";
 import MovieDetailsPage from "./pages/MovieDetailsPage";
 import ProfilePage from "./pages/ProfilePage";
 import RegisterPage from "./pages/RegisterPage";
+import NotFound from "./pages/NotFound";
 import { AuthProvider } from "./utils/AuthContext";
 import PrivateRoutes from "./utils/PrivateRoutes";
 
@@ -26,6 +27,9 @@ export default function App() {
           <Route element={<PrivateRoutes />}>
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
+
+          {/* Catch-all route for unknown paths */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
     </div>
